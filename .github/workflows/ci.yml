@@ -1,0 +1,125 @@
+name: 'CI/CD'
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - .gitignore
+      - LICENSE
+      - '**/*.md'
+  pull_request:
+    types: 
+      - opened
+      - reopened 
+      - synchronize
+    paths-ignore:
+      - .gitignore
+      - LICENSE
+      - '**/*.md'
+
+
+env:
+  pythonVersion: "3.10"
+
+
+jobs:
+  mypy:
+    name: Mypy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.pythonVersion }}
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -e . && pip install -r requirements/test.txt
+
+      - name: Run Mypy
+        run: mypy src tests
+
+  black:
+    name: Black
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.pythonVersion }}
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -e . && pip install -r requirements/test.txt
+
+      - name: Run Black
+        run: black src tests --check --diff
+
+  isort:
+    name: isort
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.pythonVersion }}
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -e . && pip install -r requirements/test.txt
+
+      - name: Run isort
+        run: isort src tests --check --diff
+
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.pythonVersion }}
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml') }}
+
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install . && pip install -r requirements/test.txt
+
+      - name: Run pytest
+        run: pytest tests
