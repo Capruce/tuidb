@@ -28,7 +28,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "textual ~= 0.2.1",
+    "textual >= 0.2.1,< 0.14.0",
 ]
 dynamic = ["version"]
 
